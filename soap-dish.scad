@@ -114,7 +114,8 @@ module soap_dish (
     fillet_radius = length_mm (1),
     hole_diameter = length_mm (5),
     suction_cup_distance = length_mm (55), // distance between centres
-    suction_cup_wall_offset = length_mm (3.5)
+    suction_cup_wall_offset = length_mm (3.5),
+    mode = "assembly"
 )
 {
     // main soap dish
@@ -131,9 +132,12 @@ module soap_dish (
         height = inner_height
     );
 
+    // shim to compensate for suction cup distance to wall
+    translate ([-inner_width/4, inner_height/2 + wall_thickness, 0])
+    cube ([inner_width/2, suction_cup_wall_offset, floor_thickness]);
+
     // mounting arms
-    translate ([0, inner_height/2 + wall_thickness, height - epsilon])
-    rotate ([90, 0, 0]) {
+    module arms () {
         translate ([-suction_cup_distance / 2, 0, 0])
         mounting_arm ();
 
@@ -141,9 +145,14 @@ module soap_dish (
         mounting_arm ();
     }
 
-    // shim to compensate for suction cup distance to wall
-    translate ([-inner_width/4, inner_height/2 + wall_thickness, 0])
-    cube ([inner_width/2, suction_cup_wall_offset, floor_thickness]);
+    if (mode == "assembly") {
+        translate ([0, inner_height/2 + wall_thickness, height - epsilon])
+        rotate ([90, 0, 0])
+        arms ();
+    } else {
+        translate ([0, inner_height / 2 + wall_thickness + length_mm (10), 0])
+        arms ();
+    }
 }
 
-soap_dish ();
+soap_dish (mode = "plate");
