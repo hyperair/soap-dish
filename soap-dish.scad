@@ -1,4 +1,5 @@
 include <MCAD/units/metric.scad>
+use <suction-cup.scad>
 
 module drainage_holes (d, spacing, bounding_box=[500, 500])
 {
@@ -77,5 +78,69 @@ module soap_dish_shape (
     }
 }
 
-dishify ()
-soap_dish_shape ();
+module mounting_arm (
+    cup_offset = length_mm (25),
+    wall_thickness = length_mm (5)
+)
+{
+    width = cup_offset;
+
+    difference () {
+        hull () {
+            translate ([-width/2, 0, 0])
+            cube ([width, width, wall_thickness]);
+
+            translate ([0, cup_offset, 0])
+            cylinder (d=width, h=wall_thickness);
+        }
+
+        translate ([0, cup_offset / 2, length_mm (5.5)])
+        mirror ([0, 0, 1])
+        rotate ([0, 0, 90])
+        suction_cup_mount_cutout ();
+    }
+}
+
+module soap_dish (
+    rounding_radius = length_mm (10),
+    inner_width = length_cm (10),
+    inner_height = length_cm (5),
+    height = length_mm (10),
+    wall_thickness = length_mm (5),
+    floor_thickness = length_mm (5),
+    fillet_radius = length_mm (1),
+    hole_diameter = length_mm (5),
+    suction_cup_distance = length_mm (55), // distance between centres
+    suction_cup_wall_offset = length_mm (3.5)
+)
+{
+    // main soap dish
+    dishify (
+        wall_thickness = wall_thickness,
+        floor_thickness = floor_thickness,
+        height = height,
+        fillet_radius = fillet_radius,
+        hole_diameter = hole_diameter
+    )
+    soap_dish_shape (
+        rounding_radius = rounding_radius,
+        width = inner_width,
+        height = inner_height
+    );
+
+    // mounting arms
+    translate ([0, inner_height/2 + wall_thickness, height - epsilon])
+    rotate ([90, 0, 0]) {
+        translate ([-suction_cup_distance / 2, 0, 0])
+        mounting_arm ();
+
+        translate ([suction_cup_distance / 2, 0, 0])
+        mounting_arm ();
+    }
+
+    // shim to compensate for suction cup distance to wall
+    translate ([-inner_width/4, inner_height/2 + wall_thickness, 0])
+    cube ([inner_width/2, suction_cup_wall_offset, floor_thickness]);
+}
+
+soap_dish ();
