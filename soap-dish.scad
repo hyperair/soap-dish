@@ -1,21 +1,17 @@
 include <MCAD/units/metric.scad>
 use <suction-cup.scad>
 
-module drainage_holes (d, spacing, bounding_box=[500, 500])
+module drainage_holes (width, length, number, spacing)
 {
-    holes_x = floor (bounding_box[0] / (spacing + d));
-    holes_y = floor (bounding_box[1] / (spacing + d));
+    translate ([-(spacing + width) * number / 2, 0, 0])
+    for (i = [0:number]) {
+        translate ([(spacing + width) * i, 0, 0])
+        hull () {
+            translate ([0, -length/2, 0])
+            circle (d=width);
 
-    res = spacing + d;
-
-    for (x=[(-holes_x/2):(holes_x/2)])
-    for (y=[(-holes_y/2):(holes_y/2)]) {
-        if (y % 2 == 0) {
-            translate ([x * res + res * 1.5, y * res])
-            circle (d = d);
-        } else {
-            translate ([x * res, y * res])
-            circle (d = d);
+            translate ([0, length/2, 0])
+            circle (d=width);
         }
     }
 }
@@ -25,7 +21,9 @@ module dishify (
     floor_thickness = length_mm (3),
     height = length_mm (10),
     fillet_radius = length_mm (1),
-    hole_diameter = length_mm (5)
+    hole_width = length_mm (5),
+    hole_length = length_mm (40),
+    hole_spacing = length_mm (7)
 )
 {
     difference () {
@@ -36,7 +34,12 @@ module dishify (
             children ();
 
             intersection () {
-                drainage_holes (d=hole_diameter, spacing=hole_diameter / 2);
+                drainage_holes (
+                    width = hole_width,
+                    length = hole_length,
+                    number = 7,
+                    spacing = hole_spacing
+                );
                 children ();
             }
         }
