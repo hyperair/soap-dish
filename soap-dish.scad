@@ -24,7 +24,7 @@ module dishify (
     floor_thickness = length_mm (3),
     height = length_mm (10),
     fillet_radius = length_mm (1),
-    hole_diameter = length_mm (7)
+    hole_diameter = length_mm (5)
 )
 {
     difference () {
