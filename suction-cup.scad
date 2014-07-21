@@ -53,4 +53,57 @@ module suction_cup (
     }
 }
 
-suction_cup ();
+module suction_cup_mount_cutout (
+    head_diameter = length_mm (15), //match the mount_diameter
+    head_height = length_mm (3),
+    shaft_diameter = length_mm (15 - 3*2),
+    shaft_height = length_mm (2.5)
+)
+{
+    height = head_height + shaft_height;
+
+    // track for the head to move in
+    hull () {
+        cylinder (
+            d = head_diameter,
+            h = head_height
+        );
+
+        translate ([head_diameter, 0, 0])
+        cylinder (
+            d = head_diameter,
+            h = head_height
+        );
+    }
+
+    // track for the gap
+    hull () {
+        cylinder (
+            d = shaft_diameter,
+            h = height
+        );
+
+        translate ([head_diameter, 0, 0])
+        cylinder (
+            d = shaft_diameter,
+            h = height
+        );
+    }
+
+    // insertion hole for head
+    cylinder (
+        d = head_diameter,
+        h = height
+    );
+}
+
+%suction_cup ();
+
+difference () {
+    translate ([0, 0, 5])
+    cube ([40, 40, 10], center=true);
+
+    translate ([0, 0, 5.5])
+    mirror ([0, 0, 1])
+    suction_cup_mount_cutout ();
+}
