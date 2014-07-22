@@ -99,11 +99,12 @@ module suction_cup_mount_cutout (
 
 %suction_cup ();
 
+translate ([length_mm (-15), 0, length_mm (4)])
 difference () {
-    translate ([0, 0, 5])
-    cube ([40, 40, 10], center=true);
+    translate ([0, 0, length_mm (5)])
+    cube ([length_mm (40), length_mm (40), length_mm (10)], center=true);
 
-    translate ([0, 0, 5.5])
-    mirror ([0, 0, 1])
+    translate ([0, 0, length_mm (5.5)])
+    mirror ([0, 0, length_mm (1)])
     suction_cup_mount_cutout ();
 }
